@@ -1,39 +1,32 @@
-# Write-It
-### By Jesse Coulson and Tamir Shem Tov
-This project was developed during a Microsoft AI Hackathon and uses Azure services. The aim of our application is to assist writers in practicing and enhancing their creativity through AI-generated prompts. 
-Each day, users are presented with three different prompts, categorized into unique 'modes.' Participants can respond to these prompts with their own writings, which are then evaluated and scored using OpenAI's models. Additionally, users have the opportunity to read stories submitted by others, compare scores, and view rankings on leaderboards for each mode. 
-To maintain a high quality user experience, our application uses Detoxify which has a BERT based model for detecting inappropriate content. Additionally, we are using an OpenAI embedding model to store prompts as vectors, enabling the use of vector search for a RAG pipeline to ensure unique prompts. Azure Cosmos MongoDB is used as our database to be able to track user progress. The web application is currently deployed with Azure.
+## Running the Project with Docker
 
-**Video Demo**: https://www.youtube.com/watch?v=6r5PlXdLFdw
+To simplify local development and deployment, this project includes Docker and Docker Compose configurations. The application runs in a Python 3.13 environment and uses MongoDB for local development (production uses Azure Cosmos MongoDB).
 
-**Application Link**: http://20.252.86.168/
-## Page Breakdown
-### Landing Page
-- **Overview**: The landing page is the first thing users see when they visit our web application. It tells the user what the purpose of our application is and directs them to begin writing.
-![landing_page](https://github.com/jccoulson/write-it/assets/28967794/06a81418-9257-4fac-8113-fc70e6c5c8e8)
+### Requirements
+- **Docker** and **Docker Compose** installed on your machine.
+- The application is built with **Python 3.13-slim** and dependencies listed in `requirements.txt`.
 
-### Difficulty Page
-- **Overview**: The difficulty page allows participants to choose from three prompt types tailored to different writing preferences and challenges.
-  - Each mode can only be attempted once per day.
-  - **Normal Mode** offers a straightforward prompt with a 10-minute time limit.
-  - **Challenge Mode** presents a syntactical challenge with 20 minutes to write, pushing the participant to have to go out of their comfort zone.
-  - **Creative Mode** provides an unconventional prompt to inspire creative thinking, with 15 minutes to submit.
-  
-![difficulty](https://github.com/jccoulson/write-it/assets/28967794/cf746d6a-2e3a-4c64-ba3e-746eeb337b4c)
+### Services and Ports
+- **python-app**: Flask web application
+  - Exposes port **5000** (mapped to host port 5000)
+- **mongo**: MongoDB database for local development
+  - Exposes port **27017** (mapped to host port 27017)
 
-### Prompt Page
-- **Overview**: This page displays the daily prompt generated for the selected difficulty.
-Users can enter their responses in the text area and submit them for feedback. Prompts are generated once per day. To make sure no two prompts are close to identical we use RAG system to ensure GPT's unique output.
-The embeddings model uses cosine similarity to evaluate that the models are not too semantically similar.
-Additionally, submissions are screened for toxicity using a model based on the BERT architecture from the Detoxify python library.
-If a submission is found to be inappropriate, it is not analyzed further and the user is redirected.
-![prompt](https://github.com/jccoulson/write-it/assets/28967794/6107f03c-dfdb-430e-b8d8-913db8dc0deb)
+### Environment Variables
+- No environment variables are strictly required by default. If you have a `.env` file for secrets or configuration, uncomment the `env_file` line in `docker-compose.yml`.
 
-### Leaderboard Page
-- **Overview**: The leaderboard page displays the top 10 users from each of the three writing modes. Participants can view and compare high-scoring essays by clicking on buttons next to the scores, allowing users to see how others have engaged with the prompt.
-- ![leaderboard](https://github.com/jccoulson/write-it/assets/28967794/4f6767f2-8574-42a1-a38b-adcc41d7a9dd)
+### Build and Run Instructions
+1. **Clone the repository** and navigate to the project root.
+2. **Build and start the services**:
+   ```bash
+   docker compose up --build
+   ```
+   This will build the Python app image and start both the Flask app and MongoDB containers.
+3. **Access the application** at [http://localhost:5000](http://localhost:5000).
 
+### Special Configuration
+- For local development, MongoDB runs in a container. In production, the app connects to Azure Cosmos MongoDB.
+- If you want MongoDB data to persist between runs, uncomment the `volumes` section for `mongo` in `docker-compose.yml`.
+- The Dockerfile sets up a Python virtual environment and installs dependencies for isolation and reproducibility.
 
-### Login/Create Account Page
-- **Overview**: These pages allow users to register and login. Here participants can create an account to save their essays, track their progress, and view their rankings on the leaderboards. The design is straightforward to ensure ease of access and use, allowing users to quickly start using our application.
-![login](https://github.com/jccoulson/write-it/assets/28967794/a7c9ad1c-dc49-44d9-83af-8abd3e4e8da0)
+---

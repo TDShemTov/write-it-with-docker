@@ -75,13 +75,14 @@ def landing_page():
 
 #route for the difficulty selection page
 @app.route('/difficulty')
-@login_required
+#@login_required
 def difficulty():
     return render_template('difficulty.html')
 
 #route for the read user's prompt from leaderboard
 @app.route('/read',methods=['POST'])
 def read():
+    return render_template('rankings.html', error=str(e))
     try: 
         if request.method == 'POST':
             mode = request.form['mode']
@@ -695,5 +696,5 @@ def init_prompts():
     return
 
 if __name__ == '__main__':
-    init_prompts()
+    #init_prompts()
     app.run(debug=True)

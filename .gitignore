@@ -2,3 +2,6 @@
 venv/
 __pycache__/
 writeit.log
+*.log
+README.md.bak
+.DS_Store
