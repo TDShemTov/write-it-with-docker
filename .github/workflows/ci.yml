@@ -1,65 +1,41 @@
-# This workflow demonstrates building a Docker image, pushing it to JFrog Artifactory,
-# and attaching an SLSA build provenance attestation, which is stored in JFrog Evidence.
-
-name: Push to JFrog
+name: Build and Tag Docker Image
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-
-# Use GitHub variables (vars) and secrets (secrets) for configuration
-env:
-  JF_URL: ${{ vars.JF_URL }}
-  JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-  JF_REGISTRY: ${{ secrets.JF_REGISTRY }}
-  JF_USER: ${{ secrets.JF_USER }}
+      
 jobs:
-  build-and-attest:
+  build-and-tag:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      id-token: write      # Required for OIDC token access
-      attestations: write  # Required for attestation
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Install and Configure JFrog CLI
-        id: setup-jfrog-cli
+      - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: ${{ secrets.JF_URL }}
-        with:
-          # Replace with the name of your configured OIDC provider in JFrog
-          oidc-provider-name: 'github-provider-writeit'
-      
-      - name: Log in to JFrog Docker Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.JF_REGISTRY }}
-          username: ${{ steps.setup-jfrog-cli.outputs.oidc-user }}
-          password: ${{ steps.setup-jfrog-cli.outputs.oidc-token }}
+          JF_URL: ${{ vars.JF_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
 
-      - name: Build and Push Docker Image
-        id: build-and-push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ env.JF_REGISTRY }}/${{ env.JF_DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
-
-      - name: Attest Docker Image and Send to JFrog Evidence
-        uses: actions/attest-build-provenance@v3
-        with:
-          # The 'oci://' prefix is required by JFrog to correctly parse the artifact type
-          subject-name: oci://${{ env.JF_REGISTRY }}/${{ env.JF_DOCKER_REPO }}/${{ env.IMAGE_NAME }}
+      - name: Build Tag and push Docker Image
+        env:
+          IMAGE_NAME: trial5lrlet.jfrog.io/write-it-docker/jfrog-docker-example-image:${{ github.run_number }}
+        run: |
+          jf docker build -t $IMAGE_NAME .
+          jf docker push $IMAGE_NAME
           
-          # This links the attestation directly to the image digest from the build step
-          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+      - name: Publish Build info With JFrog CLI
+        env:
+          # Generated and maintained by GitHub
+          JFROG_CLI_BUILD_NAME: jfrog-docker-build-example
+          # JFrog organization secret
+          JFROG_CLI_BUILD_NUMBER : ${{ github.run_number }}
+        run: |
+          # Export the build name and build nuber
+          # Collect environment variables for the build
+          jf rt build-collect-env
+          # Collect VCS details from git and add them to the build
+          jf rt build-add-git
+          # Publish build info
+          jf rt build-publish
