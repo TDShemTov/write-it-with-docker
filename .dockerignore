@@ -58,8 +58,7 @@ README*
 *.md
 docs/
 
-# Docker files (precautionary)
-Dockerfile*
+# Docker files
 docker-compose*
 
 # Temporary and local files
@@ -72,7 +71,3 @@ local/
 # ignore log files
 writeit.log
 *.log
-
-# Project-specific: skip nothing in static/ or templates/ (needed for app)
-
-# End of .dockerignore
