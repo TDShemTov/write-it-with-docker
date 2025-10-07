@@ -71,3 +71,7 @@ local/
 # ignore log files
 #writeit.log
 #*.log
+
+assets/
+docs/
+README.md
