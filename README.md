@@ -1,3 +1,7 @@
+# Overview
+I used one of my full stack projects to get familiarized with JFrog Artifactory and GitHub Actions.
+
+
 ## Running the Project with Docker
 
 To simplify local development and deployment, this project includes Docker and Docker Compose configurations. The application runs in a Python 3.13 environment and uses MongoDB for local development (production uses Azure Cosmos MongoDB).
