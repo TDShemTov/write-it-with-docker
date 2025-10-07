@@ -11,10 +11,8 @@ on:
 
 # Use GitHub variables (vars) and secrets (secrets) for configuration
 env:
-  JF_REGISTRY: ${{ vars.JF_REGISTRY }}
-  JF_DOCKER_REPO: ${{ vars.JF_DOCKER_REPO }}
-  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
-
+  JF_URL: ${{ vars.JF_URL }}
+  JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
 jobs:
   build-and-attest:
     runs-on: ubuntu-latest
