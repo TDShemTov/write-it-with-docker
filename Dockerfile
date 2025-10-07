@@ -1,34 +1,17 @@
-# syntax=docker/dockerfile:1
+# Use the official Python image as a base
+FROM python:3.11-slim
 
-FROM python:3.13-slim AS base
+# Set the working directory inside the container
 WORKDIR /app
 
-# Builder stage: install dependencies in a venv
-FROM base AS builder
-COPY --link requirements.txt requirements.txt
-RUN --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    --mount=type=cache,target=/root/.cache/pip \
-    python -m venv .venv && \
-    .venv/bin/pip install --upgrade pip && \
-    .venv/bin/pip install -r requirements.txt
+# Copy your project files into the container
+COPY . /app
 
-# Final stage: copy app code and venv, set up non-root user
-FROM base AS final
-# Create non-root user
-RUN addgroup --system appgroup && adduser --system --group appuser
-USER appuser
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy installed venv from builder
-COPY --from=builder --link /app/.venv /app/.venv
-ENV PATH="/app/.venv/bin:$PATH"
-
-# Copy application code (excluding .git, .env, etc.)
-COPY --link app.py app.py
-COPY --link static/ static/
-COPY --link templates/ templates/
-
-# Expose Flask default port
+# Expose the port Flask will run on
 EXPOSE 5000
 
-# Entrypoint
+# Command to run your Flask app
 CMD ["python", "app.py"]

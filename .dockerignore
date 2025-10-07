@@ -69,5 +69,5 @@ temp/
 local/
 
 # ignore log files
-writeit.log
-*.log
+#writeit.log
+#*.log

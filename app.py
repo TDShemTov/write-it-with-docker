@@ -12,12 +12,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 import numpy as np
 from detoxify import Detoxify
-
+import os
 #basic logging setup
+os.makedirs('tmp', exist_ok=True)
 logger = logging.getLogger('writeit')
 logger.setLevel(logging.ERROR)
 #makes sure we are only taking error level and below
-file_writer = logging.FileHandler('writeit.log')
+file_writer = logging.FileHandler('tmp/writeit.log')
 file_writer.setLevel(logging.ERROR)
 #putting date and time before message
 format= logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -696,5 +697,6 @@ def init_prompts():
     return
 
 if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000)
     #init_prompts()
-    app.run(debug=True)
+    #app.run(debug=True)
